@@ -21,12 +21,10 @@ def plot_distribution(jsonl_file, output_image):
         return
 
     # Configuration du graphique
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(12, 6))
     
-    # bins à intervalles de 50 tokens
-    bins = range(0, max(lengths) + 50, 50)
-    
-    plt.hist(lengths, bins=bins, color='skyblue', edgecolor='black', alpha=0.7)
+    # Utilisation d'un nombre automatique de bins pour l'affichage
+    plt.hist(lengths, bins=50, color='skyblue', edgecolor='black', alpha=0.7)
     
     # Ajout de titres et labels
     plt.title('Distribution de la longueur des prompts en entrée (Tokens)', fontsize=14)
@@ -35,7 +33,6 @@ def plot_distribution(jsonl_file, output_image):
     
     # Ajout de repères
     plt.grid(axis='y', linestyle='--', alpha=0.7)
-    plt.xticks(bins, rotation=45)
     
     # Sauvegarde du graphique
     plt.tight_layout()

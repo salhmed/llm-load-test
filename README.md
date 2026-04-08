@@ -35,6 +35,32 @@ options:
 
 ## Configuration Options
 
+### Running WatsonX.ai Load Tests
+
+A dedicated plugin (`watsonx`) and configuration suite are provided to benchmark `WatsonX.ai` SSE streaming endpoints locally. The suite automatically compares two configured models.
+
+**Procedure:**
+1. **Generate the Dataset**:
+   This extracts a natural 300-prompt distribution from OpenOrca for realistic benchmarking.
+   ```bash
+   uv run generate_mix_dataset.py
+   ```
+
+2. **Configure Endpoints**:
+   Update `tests/watsonx_compare/config_v1.yaml` and `config_v2.yaml` with your `host`, `project_id`, and `local_token` (and `model_id` if assessing different models).
+   *Note: SSL verification is disabled by default in the plugin for local Opneshift instances.*
+
+3. **Run the Comparison**:
+   Execute the automated cross-platform script:
+   ```bash
+   ./tests/watsonx_compare/run_and_compare.sh
+   ```
+   *The tool will natively parse the WatsonX Server-Sent Events (SSE) to print side-by-side terminal summaries of Throughput, TPOT (Time Per Output Token), and TTFT (Time To First Token).*
+
+---
+
+### General Configuration Options
+
 The tool's behavior can be customized using a YAML configuration file. Take a look at `config.yaml` for an example. More documentation on this should be added in the future.
 
 **Results**:
