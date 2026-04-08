@@ -1,0 +1,26 @@
+output:
+  format: "json"
+  dir: "./tests/watsonx_compare/output/"
+  file: "output-version-1.json"
+dataset:
+  file: "datasets/mixed_load_test.jsonl"
+  max_queries: 10
+  min_input_tokens: 0
+  max_input_tokens: 1024
+  min_output_tokens: 0
+  max_output_tokens: 1024
+  max_sequence_tokens: 2048
+load_options:
+  type: constant
+  concurrency: 2
+  duration: 20 
+plugin: "watsonx_plugin"
+plugin_options:
+  use_tls: False
+  streaming: True
+  model_id: "google/flan-t5-small"
+  project_id: "REPLACE_WITH_YOUR_PROJECT_ID"
+  host: "https://localhost:8443"
+  authorization: "REPLACE_WITH_YOUR_LOCAL_TOKEN"
+extra_metadata:
+  replicas: 1
