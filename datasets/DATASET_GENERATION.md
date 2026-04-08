@@ -4,9 +4,9 @@ This repository includes a synthetic dataset generation script that simulates th
 
 ## Methodology
 
-The dataset is generated via the custom `generate_mix_dataset.ps1` script situated in the root directory. This avoids dependency on external pre-compiled datasets.
+The dataset is generated via the cross-platform `generate_mix_dataset.py` Python script situated in the root directory.
 
-We synthesize exactly 250 sample pairs consisting of two primary prompt groups:
+We scan the existing `datasets/openorca_large_subset_011.jsonl` dataset and parse the real LLM queries inside to build exactly 250 sample pairs in these categories:
 
 1. **Short prompts / Simple conversations (80%)**: Simulates quick, standalone conversational instructions (e.g. asking to explain a basic concept).
 2. **Long prompts / RAG simulations (20%)**: Emulates context-heavy queries by appending repetitive blocks of texts that significantly bulk up the input length.
@@ -34,4 +34,9 @@ Remaining lines are serialized as follows:
 
 ### Reproducibility
 
-You can recreate or recalculate the data split by adjusting the modulo arithmetic inside `generate_mix_dataset.ps1`. Currently, `$is_rag = ($i % 5 -eq 0)` assigns a 20% slice accurately corresponding to the 1-in-5 query distribution. Execute `.\generate_mix_dataset.ps1` from your powershell terminal to update records.
+You can recreate or recalculate the data split by adjusting the loops logic inside `generate_mix_dataset.py`. Currently, it locks until it has found exactly 50 long prompts and 200 short ones yielding your 20/80 target metric.
+
+Execute:
+```sh
+uv run generate_mix_dataset.py
+```

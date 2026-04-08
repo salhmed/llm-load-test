@@ -1,36 +1,49 @@
 import json
-import random
+import os
 
-def generate_dataset(num_samples=250, filename="datasets/mixed_load_test.jsonl"):
-    metadata = {"name": "load-test-mix", "version": "0.0.1"}
+def extract_dataset(in_file, out_file):
+    metadata = {"name": "load-test-mix-extracted", "version": "0.0.1"}
     
-    with open(filename, 'w', encoding='utf-8') as f:
-        f.write(json.dumps(metadata) + '\n')
+    long_count = 0
+    short_count = 0
+    
+    # Ensure outputs array handles relative paths
+    os.makedirs(os.path.dirname(out_file), exist_ok=True)
+    
+    with open(out_file, 'w', encoding='utf-8') as out_f:
+        out_f.write(json.dumps(metadata) + '\n')
         
-        for i in range(num_samples):
-            is_rag = (i % 2 == 0)
+        try:
+            with open(in_file, 'r', encoding='utf-8') as in_f:
+                # pass metadata line
+                next(in_f)
+                
+                for line in in_f:
+                    if long_count >= 50 and short_count >= 200:
+                        break
+                        
+                    try:
+                        record = json.loads(line.strip())
+                        input_tokens = int(record.get('tok_input_length', 0))
+                        
+                        if input_tokens >= 400 and long_count < 50:
+                            record['index'] = long_count + short_count
+                            out_f.write(json.dumps(record) + '\n')
+                            long_count += 1
+                        elif input_tokens <= 150 and short_count < 200:
+                            record['index'] = long_count + short_count
+                            out_f.write(json.dumps(record) + '\n')
+                            short_count += 1
+                    except json.JSONDecodeError:
+                        continue
+        except FileNotFoundError:
+            print(f"File {in_file} not found. Please ensure you have the OpenOrca jsonl file locally.")
+            return
             
-            if is_rag:
-                context = " ".join(["The company performance in Q3 was exceptional due to cost cutting measures and successful product launches."] * 100)
-                question = f"Based on the following context, summarize the key points. Question {i}:\nContext: {context}"
-                system_prompt = "You are a knowledgeable assistant. Use the provided context to answer the user's question accurately."
-                tok_input_length = len(question) // 4 # rough estimate for RAG prompt
-                tok_output_length = random.randint(50, 100)
-            else:
-                question = f"Explain the theory of relativity to a 5-year old. Variation {i}."
-                system_prompt = "You are a helpful and friendly AI assistant."
-                tok_input_length = len(question) // 4 # rough estimate for simple prompt
-                tok_output_length = random.randint(150, 300)
-            
-            record = {
-                "index": i,
-                "question": question,
-                "system_prompt": system_prompt,
-                "tok_input_length": tok_input_length,
-                "tok_output_length": tok_output_length
-            }
-            f.write(json.dumps(record) + '\n')
+    print(f"Successfully extracted from OpenOrca: {long_count} long RAG prompts and {short_count} short prompts.")
 
 if __name__ == "__main__":
-    generate_dataset()
-    print("Dataset generated at datasets/mixed_load_test.jsonl")
+    # OS independent relative paths
+    in_file = os.path.join(".", "datasets", "openorca_large_subset_011.jsonl")
+    out_file = os.path.join(".", "datasets", "mixed_load_test.jsonl")
+    extract_dataset(in_file, out_file)
