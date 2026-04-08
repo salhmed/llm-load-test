@@ -6,10 +6,9 @@ This repository includes a synthetic dataset generation script that simulates th
 
 The dataset is generated via the cross-platform `generate_mix_dataset.py` Python script situated in the root directory.
 
-We scan the existing `datasets/openorca_large_subset_011.jsonl` dataset and parse the real LLM queries inside to build exactly 250 sample pairs in these categories:
+We scan the existing `datasets/openorca_large_subset_011.jsonl` dataset to read the first 10,000 valid samples. From this large population, we randomly sample exactly 300 records to create our load test dataset.
 
-1. **Short prompts / Simple conversations (80%)**: Simulates quick, standalone conversational instructions (e.g. asking to explain a basic concept).
-2. **Long prompts / RAG simulations (20%)**: Emulates context-heavy queries by appending repetitive blocks of texts that significantly bulk up the input length.
+*Mathematical Reality*: By sampling uniformly across a massive block of 10,000 entries, the resulting 300 instances perfectly retain and mimic the original dataset's token length curve without imposing artificial distribution tiers. This accurately simulates realistic organic LLM input variation.
 
 For both prompt types, random output token counts and accurately estimated input lengths ensure realism when metrics (like Input Tokens and Output Tokens) are calculated.
 
@@ -34,7 +33,7 @@ Remaining lines are serialized as follows:
 
 ### Reproducibility
 
-You can recreate or recalculate the data split by adjusting the loops logic inside `generate_mix_dataset.py`. Currently, it locks until it has found exactly 50 long prompts and 200 short ones yielding your 20/80 target metric.
+You can recreate or recalculate the data split by running `generate_mix_dataset.py`. The script uses `random.sample()` across the first 10,000 items with a fixed `random.seed(42)` to ensure identical outputs on repeated generation.
 
 Execute:
 ```sh
